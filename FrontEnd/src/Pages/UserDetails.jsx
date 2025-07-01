@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { Container, Card, Button } from 'react-bootstrap'
 import { useParams, useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import axios from 'axios'
-import LoadingSpinner from '../Components/LodingSpinner'
 import UserProjects from '../Components/UserProjects'
 
 function UserDetails() {
@@ -30,28 +30,72 @@ function UserDetails() {
     fetchUserData()
   }
 
-  if (loading) return <LoadingSpinner />
+  if (loading) {
+    return (
+      <div className="dashboard-loading-container">
+        <div className="dashboard-loading-spinner"></div>
+      </div>
+    )
+  }
 
   return (
-    <Container className="mt-4">
-      <Button 
-        variant="secondary" 
-        onClick={() => navigate('/AdminDashboard')}
-        className="mb-3"
-      >
-        Back to Dashboard
-      </Button>
+    <div className="dashboard-container">
+      <Container className="content-container">
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Button 
+            className="dashboard-logout-btn mb-4"
+            onClick={() => navigate('/AdminDashboard')}
+            as={motion.button}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            ← Back to Dashboard
+          </Button>
+        </motion.div>
 
-      <Card className="mb-4">
-        <Card.Body>
-          <h2>{user?.name}</h2>
-          <p><strong>Email:</strong> {user?.email}</p>
-          <p><strong>Total Projects:</strong> {user?.project?.length || 0}</p>
-        </Card.Body>
-      </Card>
+        <motion.h2 
+          className="dashboard-title"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          Client Details
+        </motion.h2>
 
-      <UserProjects projects={user?.project} onProjectUpdate={handleProjectUpdate} />
-    </Container>
+        <motion.div 
+          className="project-card mb-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <h4 className="project-card-name">{user?.name}</h4>
+          
+          <div className="project-card-info">
+            <span className="project-card-label">Email:</span> {user?.email}
+          </div>
+          
+          <div className="project-card-info">
+            <span className="project-card-label">Total Projects:</span> {user?.project?.length || 0}
+          </div>
+          
+          <div className="project-card-status">
+            Active Client
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <UserProjects projects={user?.project} onProjectUpdate={handleProjectUpdate} />
+        </motion.div>
+      </Container>
+    </div>
   )
 }
 

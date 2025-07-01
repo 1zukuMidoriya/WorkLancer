@@ -2,9 +2,10 @@ import React, {useContext, useState} from 'react';
 import { Container, Form, Button, Card, Modal, Spinner } from 'react-bootstrap';
 import {Link, useNavigate} from "react-router-dom";
 import axios from "axios";
-import LoadingSpinner from "./LodingSpinner.jsx";
 import UserContext from "../UserContext.jsx";
 import { SyncLoader } from 'react-spinners';
+import { motion } from 'framer-motion';
+import './Login.css';
 
 
 
@@ -55,49 +56,120 @@ function Login() {
 
     return (
         <>
-            <Container className="d-flex justify-content-center align-items-center vh-100">
-                <Card  className="p-4 shadow">
-                    <h3 className="text-center mb-3">Login</h3>
-                    <Form onSubmit={handleLogin}>
-                        <Form.Group controlId="formEmail" className="mb-3">
-                            <Form.Label>Email address</Form.Label>
-                            <Form.Control
+            <div className="login-container">
+                <motion.div 
+                    className="login-card"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                >
+                    <motion.h3 
+                        className="login-title"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.2 }}
+                    >
+                        Sign In
+                    </motion.h3>
+                    
+                    <form onSubmit={handleLogin}>
+                        <motion.div 
+                            className="form-group-custom"
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.3 }}
+                        >
+                            <label className="form-label">Email address</label>
+                            <input
                                 type="email"
-                                placeholder="Enter email"
+                                className="form-input"
+                                placeholder="name@example.com"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
                             />
-                        </Form.Group>
+                        </motion.div>
 
-                        <Form.Group controlId="formPassword" className="mb-4">
-                            <Form.Label>Password</Form.Label>
-                            <Form.Control
+                        <motion.div 
+                            className="form-group-custom"
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.4 }}
+                        >
+                            <label className="form-label">Password</label>
+                            <input
                                 type="password"
-                                placeholder="Password"
+                                className="form-input"
+                                placeholder="Enter your password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
                             />
-                        </Form.Group>
+                        </motion.div>
 
-                        <Button variant="primary" type="submit" className="w-100">
-                            Login
-                        </Button>
-                    </Form>
-                    <Link className="text-center mt-3"  to="/register">New guy around?</Link>
-                </Card>
-            </Container>
+                        <motion.button 
+                            type="submit" 
+                            className="login-button"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ ease: "easeOut" }}
+                        >
+                            Sign In
+                        </motion.button>
+                    </form>
+                    
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.6 }}
+                    >
+                        <Link className="register-link" to="/register">
+                            New to WorkLancer? Create an account
+                        </Link>
+                    </motion.div>
+                </motion.div>
+            </div>
 
-            <Modal 
-                show={showLoadingModal} 
-                centered
-                backdrop="static"
-            >
-                <Modal.Body className="text-center py-5">
-                    <SyncLoader/>
-                </Modal.Body>
-            </Modal>
+            {showLoadingModal && (
+                <motion.div 
+                    className="modal-backdrop"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 1050
+                    }}
+                >
+                    <motion.div 
+                        className="loading-modal"
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ duration: 0.3 }}
+                        style={{ 
+                            backgroundColor: 'rgba(255, 255, 255, 0.98)',
+                            borderRadius: '16px',
+                            padding: '40px',
+                            boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+                            backdropFilter: 'blur(10px)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}
+                    >
+                        <div className="loading-spinner"></div>
+                    </motion.div>
+                </motion.div>
+            )}
         </>
     );
 }

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'
-import { Container, Card, Button, Form, ListGroup } from 'react-bootstrap'
+import { Container, Button, Form } from 'react-bootstrap'
 import { useParams, useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import axios from 'axios'
-import LoadingSpinner from '../Components/LodingSpinner'
 
 function AdminProjectView() {
   const { projectId } = useParams()
@@ -31,11 +31,10 @@ function AdminProjectView() {
     if (!comment.trim()) return
 
     try {
-      const commentData = {
+      await axios.post(`http://localhost:8080/Comments/${projectId}`, {
         comment: comment,
         user: { id: 1 } 
-      }
-      await axios.post(`http://localhost:8080/Comments/${projectId}`, commentData)
+      })
       setComment('')
       fetchProject()
     } catch (err) {
@@ -43,33 +42,75 @@ function AdminProjectView() {
     }
   }
 
-  if (loading) return <LoadingSpinner />
+  if (loading) {
+    return (
+      <div className="dashboard-loading-container">
+        <div className="dashboard-loading-spinner"></div>
+      </div>
+    )
+  }
 
   return (
-    <Container className="mt-4">
-      <Button 
-        variant="secondary" 
-        onClick={() => navigate(-1)}
-        className="mb-3"
-      >
-        Back
-      </Button>
+    <div className="dashboard-container">
+      <Container className="content-container">
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <Button 
+            className="dashboard-logout-btn mb-4"
+            onClick={() => navigate(-1)}
+            as={motion.button}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            ← Back
+          </Button>
+        </motion.div>
 
-      <Card className="mb-4">
-        <Card.Body>
-          <h2>{project?.title}</h2>
-          <p><strong>Price:</strong> ₹{project?.price}</p>
-          <p><strong>Status:</strong> {project?.status}</p>
-          <p><strong>Deadline:</strong> {new Date(project?.deadline).toLocaleDateString()}</p>
-          <p><strong>Data Link:</strong> {project?.dataLink}</p>
-        </Card.Body>
-      </Card>
+        <motion.h2 
+          className="dashboard-title"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          Project Details
+        </motion.h2>
 
-      <Card className="mb-4">
-        <Card.Header>
-          <h5>Add Comment</h5>
-        </Card.Header>
-        <Card.Body>
+        <motion.div 
+          className="project-card mb-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.4 }}
+        >
+          <h4 className="project-card-name">{project?.title}</h4>
+          
+          <div className="project-card-info">
+            <span className="project-card-label">Price:</span> ₹{project?.price}
+          </div>
+          
+          <div className="project-card-info">
+            <span className="project-card-label">Deadline:</span> {new Date(project?.deadline).toLocaleDateString()}
+          </div>
+          
+          <div className="project-card-info">
+            <span className="project-card-label">Description:</span> {project?.dataLink}
+          </div>
+
+          <div className="project-card-status">
+            {project?.status}
+          </div>
+        </motion.div>
+
+        <motion.div 
+          className="project-card mb-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.4 }}
+        >
+          <h4 className="project-card-name">Add Comment</h4>
+          
           <Form onSubmit={addComment}>
             <Form.Group className="mb-3">
               <Form.Control
@@ -78,42 +119,59 @@ function AdminProjectView() {
                 placeholder="Add your comment..."
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
+                className="dashboard-form-input"
               />
             </Form.Group>
-            <Button type="submit" variant="primary">
+            <motion.button 
+              type="submit" 
+              className="dashboard-submit-btn"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
               Add Comment
-            </Button>
+            </motion.button>
           </Form>
-        </Card.Body>
-      </Card>
+        </motion.div>
 
-      <Card>
-        <Card.Header>
-          <h5>Comments</h5>
-        </Card.Header>
-        <Card.Body>
+        <motion.div 
+          className="project-card"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, duration: 0.4 }}
+        >
+          <h4 className="project-card-name">Comments</h4>
+          
           {project?.comments && project.comments.length > 0 ? (
-            <ListGroup variant="flush">
-              {project.comments.map((c) => (
-                <ListGroup.Item 
-                  key={c.id} 
-                  className={c.user?.role === 'Admin' ? 'bg-light-red' : ''}
-                  style={c.user?.role === 'Admin' ? { backgroundColor: '#ffe6e6' } : {}}
+            <div style={{ marginTop: '20px' }}>
+              {project.comments.map((c, index) => (
+                <motion.div 
+                  key={c.id}
+                  className={`comment-item ${c.user?.role === 'Admin' ? 'admin-comment' : 'client-comment'}`}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 + (index * 0.1), duration: 0.3 }}
                 >
-                  <p className="mb-1">{c.comment}</p>
-                  <small className="text-muted">
+                  <p className="comment-text">{c.comment}</p>
+                  <small className="comment-author">
                     By: {c.user?.name || 'Client'} 
                     {c.user?.role === 'Admin' && ' (Freelancer)'}
                   </small>
-                </ListGroup.Item>
+                </motion.div>
               ))}
-            </ListGroup>
+            </div>
           ) : (
-            <p className="text-muted">No comments yet</p>
+            <motion.p 
+              className="empty-state"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4, duration: 0.3 }}
+            >
+              No comments yet
+            </motion.p>
           )}
-        </Card.Body>
-      </Card>
-    </Container>
+        </motion.div>
+      </Container>
+    </div>
   )
 }
 

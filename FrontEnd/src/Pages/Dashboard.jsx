@@ -1,20 +1,19 @@
 import React, {useContext, useState} from 'react'
-import {Container, Navbar, Nav, Form, Button, Row, Col} from "react-bootstrap";
+import {Container, Navbar, Nav, Button} from "react-bootstrap";
 import UserContext from "../UserContext.jsx";
 import CreateProject from "./CreateProject.jsx";
 import AllProjects from "./AllProjects.jsx";
 import {useNavigate} from "react-router-dom";
-
-
+import { motion } from 'framer-motion';
+import './Dashboard.css';
 
 function Dashboard() {
-    const{username, setUser} = useContext(UserContext)
+    const { setUser, user } = useContext(UserContext)
     const [projects, setProjects] = useState("AllProjects")
-    const { user } = useContext(UserContext)
     const navigate = useNavigate()
 
     function GetAllProjects(){
-    setProjects("AllProjects")
+      setProjects("AllProjects")
     }
 
     function GetCreateProject() {
@@ -28,36 +27,80 @@ function Dashboard() {
     }
 
     return (
-        <>
-            <Navbar bg="dark" variant="dark" expand="lg" className="mb-4">
+        <div className="dashboard-container">
+            <Navbar className="dashboard-navbar">
                 <Container>
-                    <Navbar.Brand href="#" onClick={GetAllProjects}>Hello {user.name}!</Navbar.Brand>
-                    <Navbar.Toggle aria-controls="navbar-nav" />
-                    <Navbar.Collapse id="navbar-nav">
+                    <motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        <h3 className="dashboard-navbar-brand"
+                            onClick={GetAllProjects}>
+                            <span className="dashboard-navbar-welcome">Hello,</span> {user.name}
+                        </h3>
+                    </motion.div>
+                    
+                    <motion.div
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5 }}
+                    >
                         <Nav className="ms-auto">
-                            <Nav.Link onClick={GetAllProjects} >All Projects</Nav.Link>
-                            <Nav.Link onClick={GetCreateProject} >Sent Projects</Nav.Link>
-                            <Button 
-                                variant="outline-light" 
-                                size="sm" 
+                            <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.2 }}
+                            >
+                                <Nav.Link 
+                                    onClick={GetAllProjects} 
+                                    className={`dashboard-nav-link ${projects === "AllProjects" ? 'dashboard-nav-link-active' : ''}`}
+                                >
+                                    All Projects
+                                </Nav.Link>
+                            </motion.div>
+                            
+                            <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.3 }}
+                            >
+                                <Nav.Link 
+                                    onClick={GetCreateProject} 
+                                    className={`dashboard-nav-link ${projects === "CreateProject" ? 'dashboard-nav-link-active' : ''}`}
+                                >
+                                    Sent Projects
+                                </Nav.Link>
+                            </motion.div>
+                            
+                            <Button
+                                className="dashboard-logout-btn"
                                 onClick={handleLogout}
-                                className="ms-2"
+                                as={motion.button}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.98 }}
                             >
                                 Logout
                             </Button>
                         </Nav>
-                    </Navbar.Collapse>
+                    </motion.div>
                 </Container>
             </Navbar>
 
-            <>
-                {
-                    projects === "AllProjects" ? <AllProjects/> : <CreateProject onProjectSent={GetAllProjects}/>
-                }
-            </>
-
-        </>
-    )
+            <Container className="content-container">
+                <motion.div 
+                    className="dashboard-content"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                >
+                    {
+                        projects === "AllProjects" ? <AllProjects/> : <CreateProject onProjectSent={GetAllProjects}/>
+                    }
+                </motion.div>
+            </Container>
+        </div>
+    );
 }
 
-export default Dashboard
+export default Dashboard;

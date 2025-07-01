@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useContext } from 'react'
 import { Container, Row, Col, Card, Badge } from 'react-bootstrap'
-import LoadingSpinner from "../Components/LodingSpinner.jsx";
 import ProjectCard from "../Components/ProjectCard.jsx";
 import axios from 'axios'
 import UserContext from "../UserContext.jsx";
+import { motion } from 'framer-motion';
 
 function AllProjects() {
     const [projects, setProjects] = useState([])
@@ -31,28 +31,68 @@ function AllProjects() {
         }
     }, [user])
 
+    // Animation variants
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        show: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1
+            }
+        }
+    }
+
+    const cardVariants = {
+        hidden: { opacity: 0, y: 20 },
+        show: { opacity: 1, y: 0, transition: { duration: 0.4 } }
+    }
 
     if (loading) {
-        return <LoadingSpinner/>
-    } else {
-
         return (
-            <Container className="py-4">
-                <h2 className="mb-4">
+            <div className="dashboard-loading-container">
+                <div className="dashboard-loading-spinner"></div>
+            </div>
+        )
+    } else {
+        return (
+            <>
+                <motion.h2 
+                    className="dashboard-title"
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                >
                     {user?.role === 'Admin' ? 'All Projects' : 'My Projects'}
-                </h2>
-                <Row>
-                    {projects.map(project => (
-                        <Col md={6} lg={4} key={project.id} className="mb-3">
+                </motion.h2>
+                
+                <motion.div 
+                    className="row"
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="show"
+                >
+                    {projects.map((project) => (
+                        <motion.div 
+                            className="col-md-4 mb-4" 
+                            key={project.id}
+                            variants={cardVariants}
+                        >
                             <ProjectCard project={project}/>
-                        </Col>
+                        </motion.div>
                     ))}
-                </Row>
+                </motion.div>
 
                 {projects.length === 0 && (
-                    <p className="text-center text-muted">No projects yet</p>
+                    <motion.p 
+                        className="empty-state"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.2 }}
+                    >
+                        No projects found
+                    </motion.p>
                 )}
-            </Container>
+            </>
         )
     }
 }

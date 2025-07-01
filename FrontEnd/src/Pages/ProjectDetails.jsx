@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Container, Card, Button, Form, ListGroup } from 'react-bootstrap';
+import { Container, Button, Form } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
-import LoadingSpinner from '../Components/LodingSpinner';
+import { motion } from 'framer-motion';
 import UserContext from '../UserContext';
 import axios from 'axios';
 
@@ -44,75 +44,150 @@ function ProjectDetails() {
         .catch(err => console.error(err));
     };
 
-    if (loading) return <LoadingSpinner />;
-    if (!project) return <Container className="py-4"><h3>Project not found</h3></Container>;
+    if (loading) {
+        return (
+            <div className="dashboard-loading-container">
+                <div className="dashboard-loading-spinner"></div>
+            </div>
+        )
+    }
+    
+    if (!project) {
+        return (
+            <div className="dashboard-container">
+                <Container className="content-container">
+                    <h3 className="dashboard-title">Project not found</h3>
+                </Container>
+            </div>
+        )
+    }
 
     return (
-        <Container className="py-4">
-            <Button onClick={() => navigate('/dashboard')} className="mb-3">
-                Back
-            </Button>
+        <div className="dashboard-container">
+            <Container className="content-container">
+                <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.4 }}
+                >
+                    <Button 
+                        className="dashboard-logout-btn mb-4"
+                        onClick={() => navigate('/dashboard')}
+                        as={motion.button}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.98 }}
+                    >
+                        ← Back
+                    </Button>
+                </motion.div>
 
-            <Card className="mb-4">
-                <Card.Body>
-                    <h2>{project.title}</h2>
-                    <hr />
+                <motion.h2 
+                    className="dashboard-title"
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4 }}
+                >
+                    Project Details
+                </motion.h2>
+
+                <motion.div 
+                    className="project-card mb-4"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1, duration: 0.4 }}
+                >
+                    <h4 className="project-card-name">{project.title}</h4>
                     
-                    <p><strong>Price:</strong> ₹{project.price}</p>
-                    <p><strong>Deadline:</strong> {new Date(project.deadline).toLocaleDateString()}</p>
-                    <p><strong>Status:</strong> {project.status || 'Open'}</p>
+                    <div className="project-card-info">
+                        <span className="project-card-label">Price:</span> ₹{project.price}
+                    </div>
+                    
+                    <div className="project-card-info">
+                        <span className="project-card-label">Deadline:</span> {new Date(project.deadline).toLocaleDateString()}
+                    </div>
                     
                     {project.dataLink && (
-                        <p><strong>Data:</strong> <a href={project.dataLink} target="_blank">{project.dataLink}</a></p>
+                        <div className="project-card-info">
+                            <span className="project-card-label">Description:</span>
+                             {project.dataLink}
+                            
+                        </div>
                     )}
-                </Card.Body>
-            </Card>
 
-            <Card className="mb-4">
-                <Card.Header>
-                    <h5>Add Comment</h5>
-                </Card.Header>
-                <Card.Body>
+                    <div className="project-card-status">
+                        {project.status || 'Open'}
+                    </div>
+                </motion.div>
+
+                <motion.div 
+                    className="project-card mb-4"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2, duration: 0.4 }}
+                >
+                    <h4 className="project-card-name">Add Comment</h4>
+                    
                     <Form onSubmit={handleCommentSubmit}>
-                        <Form.Control
-                            as="textarea"
-                            rows={3}
-                            placeholder="Add a comment..."
-                            value={comment}
-                            onChange={(e) => setComment(e.target.value)}
-                        />
-                        <Button type="submit" className="mt-2">
+                        <Form.Group className="mb-3">
+                            <Form.Control
+                                as="textarea"
+                                rows={3}
+                                placeholder="Add a comment..."
+                                value={comment}
+                                onChange={(e) => setComment(e.target.value)}
+                                className="dashboard-form-input"
+                            />
+                        </Form.Group>
+                        <motion.button 
+                            type="submit" 
+                            className="dashboard-submit-btn"
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                        >
                             Post Comment
-                        </Button>
+                        </motion.button>
                     </Form>
-                </Card.Body>
-            </Card>
+                </motion.div>
 
-            <Card>
-                <Card.Header>
-                    <h5>Comments</h5>
-                </Card.Header>
-                <Card.Body>
+                <motion.div 
+                    className="project-card"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3, duration: 0.4 }}
+                >
+                    <h4 className="project-card-name">Comments</h4>
+                    
                     {project.comments && project.comments.length > 0 ? (
-                        <ListGroup variant="flush">
-                            {project.comments.map((c) => (
-                                <ListGroup.Item 
+                        <div style={{ marginTop: '20px' }}>
+                            {project.comments.map((c, index) => (
+                                <motion.div 
                                     key={c.id}
+                                    className={`comment-item ${c.user?.role === 'Admin' ? 'admin-comment' : 'client-comment'}`}
+                                    initial={{ opacity: 0, y: 15 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.4 + (index * 0.1), duration: 0.3 }}
                                 >
-                                    <p className="mb-1">{c.comment}</p>
-                                    <small className="text-muted">
+                                    <p className="comment-text">{c.comment}</p>
+                                    <small className="comment-author">
                                         By: {c.user?.name || 'Client'} 
                                         {c.user?.role === 'Admin' && ' (Freelancer)'}
                                     </small>
-                                </ListGroup.Item>
+                                </motion.div>
                             ))}
-                        </ListGroup>
+                        </div>
                     ) : (
-                        <p className="text-muted">No comments yet</p>
+                        <motion.p 
+                            className="empty-state"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.4, duration: 0.3 }}
+                        >
+                            No comments yet
+                        </motion.p>
                     )}
-                </Card.Body>
-            </Card>
-        </Container>
+                </motion.div>
+            </Container>
+        </div>
     );
 }
 

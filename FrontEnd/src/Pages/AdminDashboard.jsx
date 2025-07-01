@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from 'react'
-import { Container, Row, Col, Card, Navbar, Button } from 'react-bootstrap'
+import React, { useState, useEffect, useContext } from 'react'
+import { Container, Navbar, Button } from 'react-bootstrap'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
-import LoadingSpinner from '../Components/LodingSpinner'
+import { motion } from 'framer-motion'
+import UserContext from "../UserContext.jsx";
+import './AdminDashboard.css'
 
 function AdminDashboard() {
   const [users, setUsers] = useState(null)
   const navigate = useNavigate()
+  const { setUser } = useContext(UserContext)
 
   useEffect(() => {
     axios.get('http://localhost:8080/Users')
@@ -19,6 +22,7 @@ function AdminDashboard() {
   }, [])
 
   const handleLogout = () => {
+    setUser(null)
     navigate('/')
   }
 
@@ -26,53 +30,119 @@ function AdminDashboard() {
     navigate(`/user-details/${userId}`)
   }
 
+  const refreshPage = () => {
+    window.location.reload()
+  }
+
   const nonAdminUsers = users ? users.filter(u => (u.role !== 'Admin')) : []
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  }
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.4 } }
+  }
+
   return (
-    <>
-      <Navbar bg="dark" variant="dark" className="mb-4">
+    <div className="admin-container">
+      <Navbar className="admin-navbar">
         <Container>
-          <Navbar.Brand> <h3>Hello Freelancer, </h3> </Navbar.Brand>
-          <Button
-            variant="outline-light"
-            size="sm"
-            onClick={handleLogout}>
-            Logout
-          </Button>
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <h3 onClick={refreshPage} style={{cursor: 'pointer'}} className="admin-navbar-brand">
+              <span  className="admin-navbar-welcome">Hello,</span> Freelancer
+            </h3>
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Button
+              className="admin-logout-btn"
+              onClick={handleLogout}
+              as={motion.button}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              Logout
+            </Button>
+          </motion.div>
         </Container>
       </Navbar>
 
-      <Container>
+      <Container className="content-container">
         {!users ? (
-          <LoadingSpinner/>
+          <div className="admin-loading-container">
+            <div className="admin-loading-spinner"></div>
+          </div>
         ) : (
           <>
-            <h2>All Clients</h2>
-            <Row>
+            <motion.h2 
+              className="admin-title"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              All Clients
+            </motion.h2>
+            
+            <motion.div 
+              className="row"
+              variants={containerVariants}
+              initial="hidden"
+              animate="show"
+            >
               {nonAdminUsers.map((user) => (
-                <Col md={4} className="mb-3" key={user.id}>
-                  <Card 
-                    style={{ cursor: 'pointer' }} 
+                <motion.div 
+                  className="col-md-4 mb-4" 
+                  key={user.id}
+                  variants={cardVariants}
+                >
+                  <motion.div 
+                    className="client-card"
                     onClick={() => handleUserClick(user.id)}
-                    className="h-100 shadow-sm"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
-                    <Card.Body>
-                      <Card.Title>{user.name}</Card.Title>
-                      <p>Email: {user.email}</p>
-                      <p>Projects: {user.project ? user.project.length : 0}</p>
-                    </Card.Body>
-                  </Card>
-                </Col>
+                    <h4 className="client-card-name">{user.name}</h4>
+                    <div className="client-card-info">
+                      <span className="client-card-label">Email:</span> {user.email}
+                    </div>
+                    <div className="client-card-project-count">
+                      {user.project ? user.project.length : 0} Projects
+                    </div>
+                  </motion.div>
+                </motion.div>
               ))}
-            </Row>
+            </motion.div>
 
             {nonAdminUsers.length === 0 && (
-              <p className="text-center">No users found</p>
+              <motion.p 
+                className="empty-state"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                No clients found
+              </motion.p>
             )}
           </>
         )}
       </Container>
-    </>
+    </div>
   )
 }
 

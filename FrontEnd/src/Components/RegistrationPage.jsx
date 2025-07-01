@@ -2,17 +2,53 @@ import React, {useState} from 'react';
 import { Button, Card, Container, Form} from 'react-bootstrap';
 import {Link, Navigate, useNavigate} from "react-router-dom";
 import axios from "axios";
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import './RegistrationPage.css';
 
 function RegisterPage() {
     const [thisname, setName] = useState('');
     const [thisemail, setEmail] = useState('');
     const [thispassword, setPassword] = useState('');
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
     const navigate = useNavigate();
+
+    const validatePassword = (password) => {
+        const minLength = 8;
+        const hasUpperCase = /[A-Z]/.test(password);
+        const hasLowerCase = /[a-z]/.test(password);
+        const hasNumbers = /\d/.test(password);
+        const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+        if (password.length < minLength) {
+            return { valid: false, message: 'Password must be at least 8 characters long' };
+        }
+        if (!hasUpperCase) {
+            return { valid: false, message: 'Password must contain at least one uppercase letter' };
+        }
+        if (!hasLowerCase) {
+            return { valid: false, message: 'Password must contain at least one lowercase letter' };
+        }
+        if (!hasNumbers) {
+            return { valid: false, message: 'Password must contain at least one number' };
+        }
+        if (!hasSpecialChar) {
+            return { valid: false, message: 'Password must contain at least one special character' };
+        }
+        return { valid: true, message: '' };
+    };
 
     const handleRegister = (e) => {
         e.preventDefault();
+        
+        const passwordValidation = validatePassword(thispassword);
+        if (!passwordValidation.valid) {
+            setToastMessage(passwordValidation.message);
+            setShowToast(true);
+            setTimeout(() => setShowToast(false), 3000);
+            return;
+        }
+
         console.log('Name:', thisname, 'Email:', thisemail, 'Password:', thispassword);
 
         axios.post('http://localhost:8080/Users',{
@@ -33,6 +69,31 @@ function RegisterPage() {
 
     return (
         <div className="register-container">
+            <AnimatePresence>
+                {showToast && (
+                    <motion.div 
+                        className="toast-notification"
+                        initial={{ opacity: 0, x: 50, scale: 0.95 }}
+                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                        exit={{ opacity: 0, x: 20, scale: 0.95 }}
+                        transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                    >
+                        <motion.div 
+                            className="toast-icon"
+                            initial={{ rotate: -180 }}
+                            animate={{ rotate: 0 }}
+                            transition={{ type: "spring", stiffness: 200 }}
+                        >
+                            ⚠️
+                        </motion.div>
+                        <div className="toast-content">
+                            <div className="toast-title">Invalid Password</div>
+                            <div className="toast-message">{toastMessage}</div>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <motion.div 
                 className="register-card"
                 initial={{ opacity: 0, y: 20 }}
@@ -98,6 +159,14 @@ function RegisterPage() {
                             onChange={(e) => setPassword(e.target.value)}
                             required
                         />
+                        <motion.p 
+                            className="password-hint"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.5 }}
+                        >
+                            Use 8+ characters with uppercase, lowercase, numbers & symbols
+                        </motion.p>
                     </motion.div>
 
                     <motion.button 

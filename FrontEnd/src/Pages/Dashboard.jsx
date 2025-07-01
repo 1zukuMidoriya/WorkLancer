@@ -35,7 +35,8 @@ function Dashboard() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.5 }}
                     >
-                        <h3 className="dashboard-navbar-brand">
+                        <h3 className="dashboard-navbar-brand"
+                            onClick={GetAllProjects}>
                             <span className="dashboard-navbar-welcome">Hello,</span> {user.name}
                         </h3>
                     </motion.div>

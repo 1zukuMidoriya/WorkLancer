@@ -108,10 +108,9 @@ function ProjectDetails() {
                     
                     {project.dataLink && (
                         <div className="project-card-info">
-                            <span className="project-card-label">Description:</span> 
-                            <a href={project.dataLink} target="_blank" rel="noopener noreferrer" style={{ color: '#0071e3', textDecoration: 'none' }}>
-                                {project.dataLink}
-                            </a>
+                            <span className="project-card-label">Description:</span>
+                             {project.dataLink}
+                            
                         </div>
                     )}
 

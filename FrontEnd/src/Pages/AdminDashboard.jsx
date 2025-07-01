@@ -30,6 +30,10 @@ function AdminDashboard() {
     navigate(`/user-details/${userId}`)
   }
 
+  const refreshPage = () => {
+    window.location.reload()
+  }
+
   const nonAdminUsers = users ? users.filter(u => (u.role !== 'Admin')) : []
 
   const containerVariants = {
@@ -56,8 +60,8 @@ function AdminDashboard() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <h3 className="admin-navbar-brand">
-              <span className="admin-navbar-welcome">Hello,</span> Freelancer
+            <h3 onClick={refreshPage} style={{cursor: 'pointer'}} className="admin-navbar-brand">
+              <span  className="admin-navbar-welcome">Hello,</span> Freelancer
             </h3>
           </motion.div>
           
